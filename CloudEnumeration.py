@@ -9,10 +9,11 @@ import nmap
 def parse_arguments():
     parser = argparse.ArgumentParser(description='DNS Recon enumeration script')
     parser.add_argument('domain', type=str, help='Target domain for dnsrecon')
+    parser.add_argument('name_server', type=str, help='Target Nameserver for dnsrecon')
     return parser.parse_args()
 
-def run_dnsrecon(domain, file_number):
-    os.system(f'dnsrecon -d {domain} -o {file_number}.csv')
+def run_dnsrecon(domain, name_server, file_number):
+    os.system(f'dnsrecon --iw -d {domain} -D /usr/share/wordlist/seclists/Discovery/DNS/subdomains-top1million-20000.txt -k -t brt,crt,std -n {name_server} --threads 10 -o {file_number}.csv')
 
 def sort_and_filter_results(file_number):
     os.system(f'cat {file_number}.csv | awk -F, \'{{ print tolower($2) }}\' | sort -u | grep -v name | grep -v dns > filtered{file_number}.csv')
