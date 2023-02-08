@@ -9,6 +9,4 @@ Again, you may need to tweak anything in here to fit your own needs. I am not re
 
 ## DOWNLOAD INSTRUCTIONS:
 
-Step 1: pip install python-nmap
-
-Step 2: Either copy and paste the raw python code, or sudo git clone https://github.com/Fearless523/CloudEnum.git
+Either copy and paste the raw python code, or sudo git clone https://github.com/Fearless523/CloudEnum.git
