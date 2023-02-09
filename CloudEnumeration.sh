@@ -46,8 +46,6 @@ sudo nmap -iL ips.txt -p 'echo $(cat portlist.txt)' -n -O -sV --script redis-inf
 #Combine the results from the dnsrecon and gobuster into a single file
 cat dnsrecon.csv | grep -v dns | grep -v MX | grep -v route | awk -F, '{ print tolower($2) }' | grep -v name | sort -u | grep -v s3-1-w | grep -v s3-website-us-east-1 > host_temp.txt
 cat dnsrecon2.csv | grep -v dns | grep -v office | grep -v MX | awk -F, '{ print tolower($2) }' | grep -v name | sort -u >> host_temp.txt
-
-#Extract the hosts found by gobuster
 cat gobuster-hosts | awk -F, '{ print tolower($2) }' | awk '{ print $1 }' | sort -u >> host_temp.txt
 cat gobuster-hosts2 | awk -F, '{ print tolower($2) }' | awk '{ print $1 }' | sort -u >> host_temp.txt
 
