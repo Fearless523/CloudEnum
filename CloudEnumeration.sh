@@ -34,21 +34,22 @@ cat masscan.txt | grep Host | awk '{ print $5 }' | awk -F/ '{ print $1 }' | grep
 # Run nmap with the identified ports
 sudo nmap -iL ips.txt -p 'echo $(cat portlist.txt)' -n -O -sV --script redis-info,mongodb-databases,http-git,http-methods,http-passwd
 
-#Run Gobuster with the identified ports
-sudo gobuster dns -d $domain -t -q -w /usr/share/wordlist/seclists/Discovery/DNS/subdomains-top1million-20000.txt -o gobuster-hosts -r $name_server
 
-#Check if there are any redirects
-if grep -q "CNAME" dnsrecon.csv; then
+# Run gobuster on the original domain
+  gobuster dns -d $domain -t -q -w /usr/share/wordlist/seclists/Discovery/DNS/subdomains-top1million-20000.txt -o gobuster-hosts -r $name_server
 
-#Get the redirected domain
-redirect=$(grep "CNAME" dnsrecon.csv | awk -F,'{ print $3 }' | awk -F.'{ print $2"."$3 }')
-
-#Run gobuster dns on the redirected domain
-gobuster dns -d $redirect -t -q -w /usr/share/wordlist/seclists/Discovery/DNS/subdomains-top1million-20000.txt -o gobuster-hosts2 -r $name_server
+  # Run gobuster on the redirected domain if it exists
+  if [ $redirect ]; then
+    gobuster dns -d $redirect -t -q -w /usr/share/wordlist/seclists/Discovery/DNS/subdomains-top1million-20000.txt -o gobuster-hosts2 -r $name_server
+  fi
 
 #Combine the results from the dnsrecon and gobuster into a single file
 cat dnsrecon.csv | grep -v dns | grep -v MX | grep -v route | awk -F, '{ print tolower($2) }' | grep -v name | sort -u | grep -v s3-1-w | grep -v s3-website-us-east-1 > host_temp.txt
 cat dnsrecon2.csv | grep -v dns | grep -v office | grep -v MX | awk -F, '{ print tolower($2) }' | grep -v name | sort -u >> host_temp.txt
+
+#Extract the hosts found by gobuster
 cat gobuster-hosts | awk -F, '{ print tolower($2) }' | awk '{ print $1 }' | sort -u >> host_temp.txt
 cat gobuster-hosts2 | awk -F, '{ print tolower($2) }' | awk '{ print $1 }' | sort -u >> host_temp.txt
+
+#Combine them together
 cat host_temp.txt | sort -u > hosts.txt
